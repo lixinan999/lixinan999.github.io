@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火车票退票/改签费用计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e88e5, #0d47a1);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .tab-container {
+            display: flex;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .tab.active {
+            background-color: white;
+            color: #1e88e5;
+            border-bottom: 3px solid #1e88e5;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #1e88e5;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .special-case-group {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .special-case-title {
+            font-weight: bold;
+            color: #ff9800;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        
+        .special-case-options {
+            margin-top: 10px;
+        }
+        
+        .special-case-option {
+            margin-bottom: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calculate-btn {
+            background-color: #1e88e5;
+            color: white;
+        }
+        
+        .calculate-btn:hover {
+            background-color: #0d47a1;
+        }
+        
+        .reset-btn {
+            background-color: #f5f5f5;
+            color: #555;
+            border: 1px solid #ddd;
+        }
+        
+        .reset-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e88e5;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-title i {
+            margin-right: 10px;
+        }
+        
+        .fee-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e53935;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .fee-detail {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .refund-summary {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .refund-summary h3 {
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+        
+        .refund-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .refund-label {
+            font-weight: bold;
+        }
+        
+        .refund-value {
+            color: #e53935;
+        }
+        
+        .rule-summary {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            border-left: 4px solid #1e88e5;
+        }
+        
+        .rule-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e88e5;
+            margin-bottom: 10px;
+        }
+        
+        .rule-content {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .rule-content ul {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .rule-content li {
+            margin-bottom: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .time-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-input-group input {
+            flex: 1;
+        }
+        
+        .warning-note {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffb300;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .change-result-detail {
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 15px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .change-result-detail h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        
+        .result-line {
+            display: block;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .result-value {
+            color: #e53935;
+            display: block;
+        }
+        
+        .final-result {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .final-result h3 {
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            background-color: #fff3e0;
+            padding: 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .time-input-group {
+                flex-direction: column;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>火车票退票/改签费用计算器</h1>
+            <div class="subtitle">根据铁路部门最新规则计算退票和改签费用</div>
+        </header>
+        
+        <div class="tab-container">
+            <div class="tab active" data-tab="refund">退票费用计算</div>
+            <div class="tab" data-tab="change">改签费用计算</div>
+        </div>
+        
+        <!-- 退票费用计算部分 -->
+        <div id="refund-content" class="content">
+            <div class="form-group">
+                <label for="refund-ticket-price">火车票原票价（元）</label>
+                <input type="number" id="refund-ticket-price" placeholder="请输入火车票原票价" min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>距离开车时间</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="refund-time-1" name="refund-time" value="8d" checked>
+                        <label for="refund-time-1">8天（含）以上</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="refund-time-2" name="refund-time" value="48h">
+                        <label for="refund-time-2">48小时以上</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="refund-time-3" name="refund-time" value="24h">
+                        <label for="refund-time-3">24-48小时</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="refund-time-4" name="refund-time" value="0h">
+                        <label for="refund-time-4">不足24小时</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="special-case-group">
+                <div class="special-case-title">特殊情况选择</div>
+                <div class="special-case-options">
+                    <div class="radio-option special-case-option">
+                        <input type="radio" id="refund-special-none" name="refund-special" value="none" checked>
+                        <label for="refund-special-none">无特殊情况</label>
+                    </div>
+                    <div class="radio-option special-case-option">
+                        <input type="radio" id="refund-special-8d" name="refund-special" value="special-8d">
+                        <label for="refund-special-8d">距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="calculate-btn" id="calculate-refund">计算退票费用</button>
+                <button class="reset-btn" id="reset-refund">重置</button>
+            </div>
+            
+            <div id="refund-result" class="result">
+                <div class="result-title">
+                    <span>退票费用计算结果</span>
+                </div>
+                <div class="fee-amount" id="refund-fee">0.00 元</div>
+                <div class="fee-detail">
+                    <p><strong>计算说明：</strong></p>
+                    <p id="refund-explanation"></p>
+                </div>
+                
+                <!-- 退票最终结果 -->
+                <div id="refund-summary" class="refund-summary" style="display: none;">
+                    <h3>旅客最终收到的退款</h3>
+                    <div class="refund-item">
+                        <span class="refund-label">火车票原票价：</span>
+                        <span class="refund-value" id="original-price-display">0.00 元</span>
+                    </div>
+                    <div class="refund-item">
+                        <span class="refund-label">退票手续费：</span>
+                        <span class="refund-value" id="refund-fee-display">0.00 元</span>
+                    </div>
+                    <div class="refund-item">
+                        <span class="refund-label">旅客最终收到的退款：</span>
+                        <span class="refund-value" id="final-refund-display">0.00 元</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 改签费用计算部分 -->
+        <div id="change-content" class="content" style="display: none;">
+            <div class="warning-note">
+                <strong>注意：</strong>系统将根据改签前后票价自动计算。<br>
+                1. 当原票价高于新票价时，票价差额部分将按照现行退票费规定收取退票手续费。<br>
+                2. 当原票价低于新票价时，需要支付新票价全款，原票价全额返还。在此基础上如果产生手续费，需要旅客支付新票价全款+手续费，原票价全额返还。
+            </div>
+            
+            <div class="form-group">
+                <label for="change-original-price">原火车票票价（元）</label>
+                <input type="number" id="change-original-price" placeholder="请输入原火车票票价" min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="change-new-price">改签后火车票票价（元）</label>
+                <input type="number" id="change-new-price" placeholder="请输入改签后火车票票价" min="0" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>改签时间与条件</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-1" name="change-option" value="free1" checked>
+                        <label for="change-option-1">开车前8天(含)以上改签</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-2" name="change-option" value="free2">
+                        <label for="change-option-2">开车前48小时至8天改签</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-3" name="change-option" value="free3">
+                        <label for="change-option-3">开车前48小时以上改签</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-4" name="change-option" value="free4">
+                        <label for="change-option-4">开车前不足48小时改签至原乘车日期及以前</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-5" name="change-option" value="free5">
+                        <label for="change-option-5">开车后当日24时前改签当日其他列车</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-6" name="change-option" value="5p">
+                        <label for="change-option-6">开车前24-48小时改签至原乘车日期之后</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-7" name="change-option" value="15p">
+                        <label for="change-option-7">开车前不足24小时改签至原乘车日期之后</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="change-option-8" name="change-option" value="40p">
+                        <label for="change-option-8">开车后当日24时前改签次日及以后列车</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="calculate-btn" id="calculate-change">计算改签费用</button>
+                <button class="reset-btn" id="reset-change">重置</button>
+            </div>
+            
+            <div id="change-result" class="result">
+                <div class="result-title">
+                    <span>改签费用计算结果</span>
+                </div>
+                
+                <!-- 改签手续费计算结果 -->
+                <div id="change-fee-section" class="change-result-detail" style="display: none;">
+                    <h3>改签手续费计算结果</h3>
+                    <div id="change-fee-detail"></div>
+                    <div id="refund-fee-detail" style="display: none;"></div>
+                    <div id="payment-detail" style="display: none;"></div>
+                </div>
+                
+                <!-- 最终结算结果 -->
+                <div id="final-result-section" class="final-result" style="display: none;">
+                    <h3>最终结算结果</h3>
+                    <div id="final-refund-detail"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rule-summary">
+            <div class="rule-title">费用计算规则摘要</div>
+            <div class="rule-content">
+                <p><strong>退票费规则：</strong><br>
+                开车前8天(含)以上退票的，不收取退票费;票面乘车站开车时间前48小时以上的按票价5%计，24小时以上、不足48小时的按票价10%计，不足24小时的按票价20%计。距票面乘车站开车前不足8天的车票，改签至开车前8天以上的列车，又在距开车前8天以上退票的，核收5%的退票费。办理车票改签或"变更到站"时，新车票票价低于原车票的，退还差额，对差额部分核收退票费并执行现行退票费标准。开车后办理车票改签产生票价差额需退还时，按开车前不足24小时标准对票价差额部分核收退票费。<br>
+                上述计算的尾数以5角为单位，尾数小于2.5角的舍去、2.5角(含)以上且小于7.5角的计为5角、7.5角(含)以上的进为1元。退票费最低按2元计收。</p>
+                
+                <p><strong>改签费规则：</strong><br>
+                改签费按如下梯次标准核收：<br>
+                1. 距票面乘车站开车前48小时以上改签时，或开车前不足48小时改签票面乘车日期及以前的列车时，以及开车后在当日24时之前改签当日其他列车时，均不收改签费。<br>
+                2. 开车前24小时以上、不足48小时，改签票面乘车日期之后的列车时，按改签前后低票价车票票面价格的5%计。<br>
+                3. 开车前不足24小时，改签票面乘车日期之后的列车时，按改签前后低票价车票票面价格的15%计。<br>
+                4. 开车后在当日24时之前，改签次日及以后列车时，按改签前后低票价车票票面价格的40%计。<br>
+                5. 上述计算的尾数以5角为单位，尾数小于2.5角的舍去、2.5角(含)以上且小于7.5角的计为5角、7.5角(含)以上的进为1元。</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>注：本计算器根据铁路部门最新规定设计，计算结果仅供参考，实际费用以铁路部门收取为准。</p>
+        <p>© 2023 火车票费用计算器</p>
+    </footer>
+
+    <script>
+        // 选项卡切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有选项卡的active类
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // 添加当前选项卡的active类
+                this.classList.add('active');
+                
+                // 隐藏所有内容
+                document.getElementById('refund-content').style.display = 'none';
+                document.getElementById('change-content').style.display = 'none';
+                
+                // 显示对应内容
+                const tabType = this.getAttribute('data-tab');
+                if (tabType === 'refund') {
+                    document.getElementById('refund-content').style.display = 'block';
+                } else {
+                    document.getElementById('change-content').style.display = 'block';
+                }
+                
+                // 隐藏结果区域
+                document.getElementById('refund-result').classList.remove('show');
+                document.getElementById('change-result').classList.remove('show');
+            });
+        });
+        
+        // 尾数处理函数
+        function processFee(fee) {
+            // 转换为角
+            let feeInJiao = Math.round(fee * 10);
+            
+            // 计算余数
+            let remainder = feeInJiao % 5;
+            
+            // 根据余数调整
+            if (remainder < 2.5) {
+                feeInJiao = feeInJiao - remainder;
+            } else if (remainder < 7.5) {
+                feeInJiao = feeInJiao - remainder + 5;
+            } else {
+                feeInJiao = feeInJiao - remainder + 10;
+            }
+            
+            // 转换回元，保留1位小数
+            return feeInJiao / 10;
+        }
+        
+        // 获取退票费率（根据改签时间选项）
+        function getRefundRateForChange(changeOption) {
+            switch(changeOption) {
+                case 'free1': // 开车前8天(含)以上改签
+                    return 0;
+                case 'free2': // 开车前48小时至8天改签
+                    return 0.05;
+                case 'free3': // 开车前48小时以上改签
+                    return 0.05;
+                case 'free4': // 开车前不足48小时改签至原乘车日期及以前
+                    return 0.1;
+                case 'free5': // 开车后当日24时前改签当日其他列车
+                    return 0.2;
+                case '5p': // 开车前24-48小时改签至原乘车日期之后
+                    return 0.1;
+                case '15p': // 开车前不足24小时改签至原乘车日期之后
+                    return 0.2;
+                case '40p': // 开车后当日24时前改签次日及以后列车
+                    return 0.2;
+                default:
+                    return 0;
+            }
+        }
+        
+        // 计算退票费用
+        document.getElementById('calculate-refund').addEventListener('click', function() {
+            const price = parseFloat(document.getElementById('refund-ticket-price').value);
+            
+            if (!price || price <= 0) {
+                alert('请输入有效的火车票票价');
+                return;
+            }
+            
+            // 获取退票时间选项
+            const timeOption = document.querySelector('input[name="refund-time"]:checked').value;
+            const specialCase = document.querySelector('input[name="refund-special"]:checked').value;
+            
+            let rate = 0;
+            let explanation = '';
+            
+            // 根据退票时间和特殊情况计算费率
+            if (specialCase === 'special-8d') {
+                // 特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票
+                // 根据时间选项确定费率
+                switch(timeOption) {
+                    case '8d':
+                        // 8天以上时不是免费，要收取5%
+                        rate = 0.05;
+                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票，按票价的${rate * 100}%计算。`;
+                        break;
+                    case '48h':
+                        rate = 0.05;
+                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票。由于距离开车时间在48小时以上，按票价的${rate * 100}%计算。`;
+                        break;
+                    case '24h':
+                        rate = 0.1;
+                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票。由于距离开车时间在24-48小时之间，按票价的${rate * 100}%计算。`;
+                        break;
+                    case '0h':
+                        rate = 0.2;
+                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票。由于距离开车时间不足24小时，按票价的${rate * 100}%计算。`;
+                        break;
+                }
+            } else {
+                // 正常情况
+                switch(timeOption) {
+                    case '8d':
+                        rate = 0;
+                        explanation = '开车前8天(含)以上退票，不收取退票费。';
+                        break;
+                    case '48h':
+                        rate = 0.05;
+                        explanation = `开车前48小时以上退票，按票价的${rate * 100}%计算。`;
+                        break;
+                    case '24h':
+                        rate = 0.1;
+                        explanation = `开车前24-48小时退票，按票价的${rate * 100}%计算。`;
+                        break;
+                    case '0h':
+                        rate = 0.2;
+                        explanation = `开车前不足24小时退票，按票价的${rate * 100}%计算。`;
+                        break;
+                }
+            }
+            
+            // 计算费用
+            let fee = price * rate;
+            
+            // 尾数处理
+            fee = processFee(fee);
+            
+            // 退票费最低按2元计收。当计算出的退票费小于2元时，按2元收取；若车票价格本身低于2元，则按车票全价收取，即不退钱。
+            if (rate > 0) {
+                // 如果计算出的退票费小于2元
+                if (fee < 2) {
+                    // 如果车票价格低于2元，则按车票全价收取
+                    if (price < 2) {
+                        fee = price;
+                        explanation += ` 退票费最低按2元计收，但车票价格${price.toFixed(2)}元低于2元，故按车票全价收取退票费。`;
+                    } else {
+                        fee = 2;
+                        explanation += ` 退票费最低按2元计收，故实际收取2元退票费。`;
+                    }
+                }
+            }
+            
+            // 计算旅客最终收到的退款
+            let finalRefund = price - fee;
+            if (finalRefund < 0) finalRefund = 0;
+            
+            // 问题一：在退票页面显示旅客最终收到的退款
+            document.getElementById('original-price-display').textContent = price.toFixed(2) + ' 元';
+            document.getElementById('refund-fee-display').textContent = fee.toFixed(2) + ' 元';
+            document.getElementById('final-refund-display').textContent = finalRefund.toFixed(2) + ' 元';
+            document.getElementById('refund-summary').style.display = 'block';
+            
+            // 显示结果
+            document.getElementById('refund-fee').textContent = fee.toFixed(2) + ' 元';
+            document.getElementById('refund-explanation').textContent = explanation;
+            document.getElementById('refund-result').classList.add('show');
+        });
+        
+        // 计算改签费用
+        document.getElementById('calculate-change').addEventListener('click', function() {
+            const originalPrice = parseFloat(document.getElementById('change-original-price').value);
+            const newPrice = parseFloat(document.getElementById('change-new-price').value);
+            
+            if (!originalPrice || originalPrice <= 0) {
+                alert('请输入有效的原火车票票价');
+                return;
+            }
+            
+            if (!newPrice || newPrice < 0) {
+                alert('请输入有效的改签后火车票票价');
+                return;
+            }
+            
+            // 获取改签选项
+            const changeOption = document.querySelector('input[name="change-option"]:checked').value;
+            
+            // 计算改签费用
+            let changeRate = 0;
+            let changeFee = 0;
+            
+            // 根据改签选项计算改签费率
+            switch(changeOption) {
+                case 'free1':
+                    changeRate = 0;
+                    break;
+                case 'free2':
+                    changeRate = 0;
+                    break;
+                case 'free3':
+                    changeRate = 0;
+                    break;
+                case 'free4':
+                    changeRate = 0;
+                    break;
+                case 'free5':
+                    changeRate = 0;
+                    break;
+                case '5p':
+                    changeRate = 0.05;
+                    break;
+                case '15p':
+                    changeRate = 0.15;
+                    break;
+                case '40p':
+                    changeRate = 0.4;
+                    break;
+            }
+            
+            // 计算改签费用（按低票价计算）
+            const lowerPrice = Math.min(originalPrice, newPrice);
+            changeFee = lowerPrice * changeRate;
+            
+            // 尾数处理
+            changeFee = processFee(changeFee);
+            
+            // 清空之前的显示
+            document.getElementById('change-fee-detail').innerHTML = '';
+            document.getElementById('refund-fee-detail').innerHTML = '';
+            document.getElementById('payment-detail').innerHTML = '';
+            document.getElementById('final-refund-detail').innerHTML = '';
+            
+            // 初始化变量
+            let priceDiff = 0;
+            let refundRate = 0;
+            let refundFeeForDiff = 0;
+            let extraPayment = 0;
+            let finalRefund = 0;
+            let totalPayment = 0;
+            
+            // 构建结果显示字符串
+            let changeFeeHtml = '';
+            let refundFeeHtml = '';
+            let paymentHtml = '';
+            let finalRefundHtml = '';
+            
+            // 问题二：重新组织结果显示格式
+            // 1. 改签手续费手续X%,X元。
+            if (changeRate > 0) {
+                changeFeeHtml = `<div class="result-line">
+                    <span class="result-label">改签手续费手续${(changeRate * 100)}%，${changeFee.toFixed(2)}元。</span>
+                </div>`;
+            } else {
+                changeFeeHtml = `<div class="result-line">
+                    <span class="result-label">改签手续费手续0%，0.00元。</span>
+                </div>`;
+            }
+            
+            // 判断原票价与新票价的关系
+            if (originalPrice > newPrice) {
+                // 情况1：原票价高于新票价（高改低）
+                priceDiff = originalPrice - newPrice;
+                refundRate = getRefundRateForChange(changeOption);
+                
+                // 计算差额部分退票手续费
+                refundFeeForDiff = priceDiff * refundRate;
+                refundFeeForDiff = processFee(refundFeeForDiff);
+                
+                // 退票费最低按2元计收
+                if (refundRate > 0) {
+                    // 如果计算出的退票费小于2元
+                    if (refundFeeForDiff < 2) {
+                        // 如果差价低于2元，则按差价全价收取
+                        if (priceDiff < 2) {
+                            refundFeeForDiff = priceDiff;
+                        } else {
+                            refundFeeForDiff = 2;
+                        }
+                    }
+                }
+                
+                // 2. 退票费收取差额部分X%，X元（无此费用时此行不显示）
+                if (refundRate > 0 && refundFeeForDiff > 0) {
+                    refundFeeHtml = `<div class="result-line">
+                        <span class="result-label">退票费收取差额部分${(refundRate * 100)}%，${refundFeeForDiff.toFixed(2)}元。</span>
+                    </div>`;
+                }
+                
+                // 计算总手续费 = 改签费 + 差额退票费
+                let totalFee = changeFee + refundFeeForDiff;
+                
+                // 计算旅客实际收到的退款：高票价 - 低票价 - 总手续费
+                finalRefund = priceDiff - totalFee;
+                
+                // 如果总手续费 > 差价，旅客需要额外支付不足部分
+                if (totalFee > priceDiff) {
+                    extraPayment = totalFee - priceDiff;
+                    finalRefund = 0; // 差额不足以支付手续费，退款为0
+                    
+                    // 3. 旅客需要重新支付的金额（无此费用时此行不显示，显示此行时要写明需要支付的都是哪些费用）
+                    if (extraPayment > 0) {
+                        paymentHtml = `<div class="result-line highlight">
+                            <span class="result-label">旅客需要额外支付的金额：</span>
+                            <span class="result-value">${extraPayment.toFixed(2)}元（用于支付手续费超出票价差价的部分）</span>
+                        </div>`;
+                    }
+                } else if (finalRefund < 0) {
+                    // 确保退款不为负数
+                    finalRefund = 0;
+                }
+                
+                // 计算旅客总共需要支付金额
+                totalPayment = extraPayment;
+                
+            } else if (originalPrice < newPrice) {
+                // 情况2：原票价低于新票价（低改高）
+                // 旅客需要支付新票价全款+手续费，原票价全额返还
+                
+                // 3. 旅客需要重新支付的金额（无此费用时此行不显示，显示此行时要写明需要支付的都是哪些费用）
+                if (changeFee > 0) {
+                    paymentHtml = `<div class="result-line">
+                        <span class="result-label">旅客需要重新支付的金额：</span>
+                        <span class="result-value">${(newPrice + changeFee).toFixed(2)}元（包括新票价全款${newPrice.toFixed(2)}元和改签手续费${changeFee.toFixed(2)}元）</span>
+                    </div>`;
+                } else {
+                    paymentHtml = `<div class="result-line">
+                        <span class="result-label">旅客需要重新支付的金额：</span>
+                        <span class="result-value">${newPrice.toFixed(2)}元（新票价全款）</span>
+                    </div>`;
+                }
+                
+                totalPayment = newPrice + changeFee;
+                // 低改高时，旅客应该收到低票价全款
+                finalRefund = originalPrice;
+                
+            } else {
+                // 情况3：原票价等于新票价
+                if (changeFee > 0) {
+                    totalPayment = changeFee;
+                    
+                    // 3. 旅客需要重新支付的金额
+                    paymentHtml = `<div class="result-line">
+                        <span class="result-label">旅客需要重新支付的金额：</span>
+                        <span class="result-value">${changeFee.toFixed(2)}元（改签手续费）</span>
+                    </div>`;
+                } else {
+                    totalPayment = 0;
+                }
+                // 票价相等时，旅客最终实际收到的退款为原票价全款
+                finalRefund = originalPrice;
+            }
+            
+            // 4. 旅客最终实际收到的退款（退款为0时此行也要显示，显示为0元）
+            finalRefundHtml = `<div class="result-line">
+                <span class="result-label">旅客最终实际收到的退款：</span>
+                <span class="result-value">${finalRefund.toFixed(2)}元</span>
+            </div>`;
+            
+            // 显示结果
+            document.getElementById('change-fee-detail').innerHTML = changeFeeHtml;
+            
+            if (refundFeeHtml) {
+                document.getElementById('refund-fee-detail').innerHTML = refundFeeHtml;
+                document.getElementById('refund-fee-detail').style.display = 'block';
+            } else {
+                document.getElementById('refund-fee-detail').style.display = 'none';
+            }
+            
+            if (paymentHtml) {
+                document.getElementById('payment-detail').innerHTML = paymentHtml;
+                document.getElementById('payment-detail').style.display = 'block';
+            } else {
+                document.getElementById('payment-detail').style.display = 'none';
+            }
+            
+            document.getElementById('final-refund-detail').innerHTML = finalRefundHtml;
+            
+            // 显示结果区域
+            document.getElementById('change-fee-section').style.display = 'block';
+            document.getElementById('final-result-section').style.display = 'block';
+            document.getElementById('change-result').classList.add('show');
+        });
+        
+        // 重置退票表单
+        document.getElementById('reset-refund').addEventListener('click', function() {
+            document.getElementById('refund-ticket-price').value = '';
+            document.getElementById('refund-time-1').checked = true;
+            document.getElementById('refund-special-none').checked = true;
+            document.getElementById('refund-result').classList.remove('show');
+        });
+        
+        // 重置改签表单
+        document.getElementById('reset-change').addEventListener('click', function() {
+            document.getElementById('change-original-price').value = '';
+            document.getElementById('change-new-price').value = '';
+            document.getElementById('change-option-1').checked = true;
+            document.getElementById('change-result').classList.remove('show');
+        });
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认显示退票计算部分
+            document.getElementById('refund-content').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
