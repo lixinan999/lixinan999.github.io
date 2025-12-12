@@ -3,978 +3,1035 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>火车票退票/改签费用计算器</title>
+    <title>铁路携带品查询工具</title>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Microsoft YaHei', sans-serif;
+            font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
         }
         
         body {
-            background-color: #f5f5f5;
+            background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
             padding: 20px;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
         }
         
-        .container {
-            background-color: white;
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        .search-container {
+            background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             margin-bottom: 30px;
         }
         
-        header {
-            background: linear-gradient(135deg, #1e88e5, #0d47a1);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .tab-container {
+        .search-box {
             display: flex;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #ddd;
+            flex-direction: column;
+            gap: 15px;
         }
         
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .tab:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .tab.active {
-            background-color: white;
-            color: #1e88e5;
-            border-bottom: 3px solid #1e88e5;
-        }
-        
-        .content {
-            padding: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, select:focus {
-            border-color: #1e88e5;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
-        }
-        
-        .radio-group {
+        .input-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .radio-option {
-            display: flex;
-            align-items: center;
-        }
-        
-        .radio-option input {
-            width: auto;
-            margin-right: 8px;
-        }
-        
-        .special-case-group {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #ff9800;
-        }
-        
-        .special-case-title {
-            font-weight: bold;
-            color: #ff9800;
-            margin-bottom: 10px;
-            font-size: 15px;
-        }
-        
-        .special-case-options {
-            margin-top: 10px;
-        }
-        
-        .special-case-option {
-            margin-bottom: 10px;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .calculate-btn {
-            background-color: #1e88e5;
-            color: white;
-        }
-        
-        .calculate-btn:hover {
-            background-color: #0d47a1;
-        }
-        
-        .reset-btn {
-            background-color: #f5f5f5;
-            color: #555;
-            border: 1px solid #ddd;
-        }
-        
-        .reset-btn:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .result {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            display: none;
-        }
-        
-        .result.show {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-        
-        .result-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1e88e5;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .result-title i {
-            margin-right: 10px;
-        }
-        
-        .fee-amount {
-            font-size: 32px;
-            font-weight: bold;
-            color: #e53935;
-            text-align: center;
-            margin: 15px 0;
-        }
-        
-        .fee-detail {
-            background-color: white;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #4caf50;
-        }
-        
-        .refund-summary {
-            background-color: #e8f5e9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            border-left: 4px solid #4caf50;
-        }
-        
-        .refund-summary h3 {
-            color: #4caf50;
-            margin-bottom: 10px;
-        }
-        
-        .refund-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .refund-label {
-            font-weight: bold;
-        }
-        
-        .refund-value {
-            color: #e53935;
-        }
-        
-        .rule-summary {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f0f7ff;
-            border-radius: 8px;
-            border-left: 4px solid #1e88e5;
-        }
-        
-        .rule-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #1e88e5;
-            margin-bottom: 10px;
-        }
-        
-        .rule-content {
-            font-size: 14px;
-            color: #555;
-        }
-        
-        .rule-content ul {
-            padding-left: 20px;
-            margin-top: 5px;
-        }
-        
-        .rule-content li {
-            margin-bottom: 5px;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #777;
-            font-size: 14px;
-        }
-        
-        .time-input-group {
-            display: flex;
             gap: 10px;
         }
         
-        .time-input-group input {
+        .input-group input {
             flex: 1;
+            min-width: 250px;
+            padding: 15px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
         }
         
-        .warning-note {
+        .input-group input:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .input-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        
+        .input-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .hint span {
+            font-weight: bold;
+            color: #3498db;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .hint span:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .result-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            min-height: 200px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .result-header h2 {
+            color: #2c3e50;
+            font-size: 22px;
+        }
+        
+        .result-content {
+            padding: 15px 0;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        .result-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            border-left: 4px solid #3498db;
+        }
+        
+        .result-item h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .result-item p {
+            color: #34495e;
+            margin-bottom: 5px;
+        }
+        
+        .warning {
             background-color: #fff8e1;
-            border-left: 4px solid #ffb300;
-            padding: 12px;
+            border-left-color: #ffc107;
+            padding: 15px;
+            border-radius: 6px;
             margin-top: 15px;
+            font-size: 15px;
+        }
+        
+        .note {
+            background-color: #e8f4fc;
+            border-left-color: #3498db;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .category-tag {
+            background-color: #e8f4fc;
+            color: #3498db;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #d6eaf8;
+        }
+        
+        .category-tag:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* 新增：官方规定区域的样式 */
+        .official-rules {
+            background-color: #e8f4fc;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 5px solid #3498db;
+        }
+        
+        .official-rules h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .official-rules a {
+            color: #2980b9;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .official-rules a:hover {
+            text-decoration: underline;
+        }
+        
+        .general-regulations {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #d6eaf8;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        .general-regulations p {
+            margin-bottom: 15px;
+        }
+        
+        .search-hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            padding-top: 15px;
+            border-top: 1px dashed #bdc3c7;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
             font-size: 14px;
         }
         
-        .change-result-detail {
-            margin-top: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 15px;
-            border-left: 4px solid #ff9800;
-        }
-        
-        .change-result-detail h3 {
-            color: #ff9800;
-            margin-bottom: 10px;
-        }
-        
-        .result-line {
-            display: block;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .result-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 3px;
-        }
-        
-        .result-value {
-            color: #e53935;
-            display: block;
-        }
-        
-        .final-result {
-            background-color: #e8f5e9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            border-left: 4px solid #4caf50;
-        }
-        
-        .final-result h3 {
-            color: #4caf50;
-            margin-bottom: 10px;
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .search-container, .result-container, .official-rules {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group input {
+                min-width: 100%;
+            }
         }
         
         .highlight {
-            background-color: #fff3e0;
-            padding: 5px;
+            background-color: #fffacd;
+            padding: 2px 4px;
             border-radius: 3px;
             font-weight: bold;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .time-input-group {
-                flex-direction: column;
-            }
-            
-            .radio-group {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>火车票退票/改签费用计算器</h1>
-            <div class="subtitle">根据铁路部门最新规则计算退票和改签费用</div>
-        </header>
-        
-        <div class="tab-container">
-            <div class="tab active" data-tab="refund">退票费用计算</div>
-            <div class="tab" data-tab="change">改签费用计算</div>
-        </div>
-        
-        <!-- 退票费用计算部分 -->
-        <div id="refund-content" class="content">
-            <div class="form-group">
-                <label for="refund-ticket-price">火车票原票价（元）</label>
-                <input type="number" id="refund-ticket-price" placeholder="请输入火车票原票价" min="0" step="0.01">
+    <div class="header">
+        <h1>铁路携带品查询工具</h1>
+        <p>根据《铁路旅客禁止、限制携带和托运物品目录》查询物品携带规定</p>
+    </div>
+    
+    <div class="search-container">
+        <div class="search-box">
+            <div class="input-group">
+                <input type="text" id="searchInput" placeholder="请输入要查询的品类，如：白酒、充电宝、水果刀等" autocomplete="off">
+                <button id="searchBtn">查询携带规定</button>
             </div>
-            
-            <div class="form-group">
-                <label>距离开车时间</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="refund-time-1" name="refund-time" value="8d" checked>
-                        <label for="refund-time-1">8天（含）以上</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="refund-time-2" name="refund-time" value="48h">
-                        <label for="refund-time-2">48小时以上</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="refund-time-3" name="refund-time" value="24h">
-                        <label for="refund-time-3">24-48小时</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="refund-time-4" name="refund-time" value="0h">
-                        <label for="refund-time-4">不足24小时</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="special-case-group">
-                <div class="special-case-title">特殊情况选择</div>
-                <div class="special-case-options">
-                    <div class="radio-option special-case-option">
-                        <input type="radio" id="refund-special-none" name="refund-special" value="none" checked>
-                        <label for="refund-special-none">无特殊情况</label>
-                    </div>
-                    <div class="radio-option special-case-option">
-                        <input type="radio" id="refund-special-8d" name="refund-special" value="special-8d">
-                        <label for="refund-special-8d">距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button class="calculate-btn" id="calculate-refund">计算退票费用</button>
-                <button class="reset-btn" id="reset-refund">重置</button>
-            </div>
-            
-            <div id="refund-result" class="result">
-                <div class="result-title">
-                    <span>退票费用计算结果</span>
-                </div>
-                <div class="fee-amount" id="refund-fee">0.00 元</div>
-                <div class="fee-detail">
-                    <p><strong>计算说明：</strong></p>
-                    <p id="refund-explanation"></p>
-                </div>
-                
-                <!-- 退票最终结果 -->
-                <div id="refund-summary" class="refund-summary" style="display: none;">
-                    <h3>旅客最终收到的退款</h3>
-                    <div class="refund-item">
-                        <span class="refund-label">火车票原票价：</span>
-                        <span class="refund-value" id="original-price-display">0.00 元</span>
-                    </div>
-                    <div class="refund-item">
-                        <span class="refund-label">退票手续费：</span>
-                        <span class="refund-value" id="refund-fee-display">0.00 元</span>
-                    </div>
-                    <div class="refund-item">
-                        <span class="refund-label">旅客最终收到的退款：</span>
-                        <span class="refund-value" id="final-refund-display">0.00 元</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 改签费用计算部分 -->
-        <div id="change-content" class="content" style="display: none;">
-            <div class="warning-note">
-                <strong>注意：</strong>系统将根据改签前后票价自动计算。<br>
-                1. 当原票价高于新票价时，票价差额部分将按照现行退票费规定收取退票手续费。<br>
-                2. 当原票价低于新票价时，需要支付新票价全款，原票价全额返还。在此基础上如果产生手续费，需要旅客支付新票价全款+手续费，原票价全额返还。
-            </div>
-            
-            <div class="form-group">
-                <label for="change-original-price">原火车票票价（元）</label>
-                <input type="number" id="change-original-price" placeholder="请输入原火车票票价" min="0" step="0.01">
-            </div>
-            
-            <div class="form-group">
-                <label for="change-new-price">改签后火车票票价（元）</label>
-                <input type="number" id="change-new-price" placeholder="请输入改签后火车票票价" min="0" step="0.01">
-            </div>
-            
-            <div class="form-group">
-                <label>改签时间与条件</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-1" name="change-option" value="free1" checked>
-                        <label for="change-option-1">开车前8天(含)以上改签</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-2" name="change-option" value="free2">
-                        <label for="change-option-2">开车前48小时至8天改签</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-3" name="change-option" value="free3">
-                        <label for="change-option-3">开车前48小时以上改签</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-4" name="change-option" value="free4">
-                        <label for="change-option-4">开车前不足48小时改签至原乘车日期及以前</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-5" name="change-option" value="free5">
-                        <label for="change-option-5">开车后当日24时前改签当日其他列车</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-6" name="change-option" value="5p">
-                        <label for="change-option-6">开车前24-48小时改签至原乘车日期之后</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-7" name="change-option" value="15p">
-                        <label for="change-option-7">开车前不足24小时改签至原乘车日期之后</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="change-option-8" name="change-option" value="40p">
-                        <label for="change-option-8">开车后当日24时前改签次日及以后列车</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button class="calculate-btn" id="calculate-change">计算改签费用</button>
-                <button class="reset-btn" id="reset-change">重置</button>
-            </div>
-            
-            <div id="change-result" class="result">
-                <div class="result-title">
-                    <span>改签费用计算结果</span>
-                </div>
-                
-                <!-- 改签手续费计算结果 -->
-                <div id="change-fee-section" class="change-result-detail" style="display: none;">
-                    <h3>改签手续费计算结果</h3>
-                    <div id="change-fee-detail"></div>
-                    <div id="refund-fee-detail" style="display: none;"></div>
-                    <div id="payment-detail" style="display: none;"></div>
-                </div>
-                
-                <!-- 最终结算结果 -->
-                <div id="final-result-section" class="final-result" style="display: none;">
-                    <h3>最终结算结果</h3>
-                    <div id="final-refund-detail"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="rule-summary">
-            <div class="rule-title">费用计算规则摘要</div>
-            <div class="rule-content">
-                <p><strong>退票费规则：</strong><br>
-                开车前8天(含)以上退票的，不收取退票费;票面乘车站开车时间前48小时以上的按票价5%计，24小时以上、不足48小时的按票价10%计，不足24小时的按票价20%计。距票面乘车站开车前不足8天的车票，改签至开车前8天以上的列车，又在距开车前8天以上退票的，核收5%的退票费。办理车票改签或"变更到站"时，新车票票价低于原车票的，退还差额，对差额部分核收退票费并执行现行退票费标准。开车后办理车票改签产生票价差额需退还时，按开车前不足24小时标准对票价差额部分核收退票费。<br>
-                上述计算的尾数以5角为单位，尾数小于2.5角的舍去、2.5角(含)以上且小于7.5角的计为5角、7.5角(含)以上的进为1元。退票费最低按2元计收。</p>
-                
-                <p><strong>改签费规则：</strong><br>
-                改签费按如下梯次标准核收：<br>
-                1. 距票面乘车站开车前48小时以上改签时，或开车前不足48小时改签票面乘车日期及以前的列车时，以及开车后在当日24时之前改签当日其他列车时，均不收改签费。<br>
-                2. 开车前24小时以上、不足48小时，改签票面乘车日期之后的列车时，按改签前后低票价车票票面价格的5%计。<br>
-                3. 开车前不足24小时，改签票面乘车日期之后的列车时，按改签前后低票价车票票面价格的15%计。<br>
-                4. 开车后在当日24时之前，改签次日及以后列车时，按改签前后低票价车票票面价格的40%计。<br>
-                5. 上述计算的尾数以5角为单位，尾数小于2.5角的舍去、2.5角(含)以上且小于7.5角的计为5角、7.5角(含)以上的进为1元。</p>
+            <div class="hint">
+                常用查询示例：
+                <span onclick="searchExample('白酒')">白酒</span> · 
+                <span onclick="searchExample('充电宝')">充电宝</span> · 
+                <span onclick="searchExample('水果刀')">水果刀</span> · 
+                <span onclick="searchExample('宠物')">宠物</span> · 
+                <span onclick="searchExample('自热食品')">自热食品</span> · 
+                <span onclick="searchExample('喷雾')">喷雾</span>
             </div>
         </div>
     </div>
     
-    <footer>
-        <p>注：本计算器为个人作品，计算结果仅供参考，实际费用以铁路部门收取为准。</p>
-    </footer>
+    <div class="result-container">
+        <div class="result-header">
+            <h2>查询结果</h2>
+            <div id="resultCount">输入品类后显示结果</div>
+        </div>
+        
+        <div class="result-content" id="resultContent">
+            <div class="empty-state">
+                <i>🔍</i>
+                <h3>请输入要查询的品类</h3>
+                <p>在搜索框中输入您想查询的物品名称，例如：白酒、充电宝、水果刀等</p>
+                
+                <div class="category-list" id="categorySamples">
+                    <!-- 常用品类标签将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增：官方规定链接及通用规则 -->
+    <div class="official-rules">
+        <h3>📋 官方规定与说明</h3>
+        <p><strong>禁止携带物品目录详见：</strong><a href="https://mobile.12306.cn/otsmobile/h5/otsbussiness/subscribe/pdf-page.html?url=https://mobile.12306.cn/otsmobile/h5/otsbussiness/notification/forbidden.pdf" target="_blank">国家铁路局、公安部《铁路旅客禁止、限制携带和托运物品目录》</a>（官方PDF）</p>
+        <div class="general-regulations">
+            <p><strong>铁路旅客携带品通用规定：</strong></p>
+            <p>1. 旅客携带品由自己负责看管。旅客需妥善放置携带品，不得影响公共空间使用和安全。每人免费携带品的重量和规格是：儿童10千克，外交人员35千克，其他旅客20千克。每件物品外部尺寸长、宽、高之和不超过160厘米，杆状物品不超过200厘米；但乘坐动车组列车均不超过130厘米；每件重量不超过20千克。平衡车、滑行器等轮式代步工具须使用硬质包装物妥善包装。依靠辅助器具才能行动的老、幼、病、残、孕等特殊重点旅客旅行时代步的折叠式轮椅，以及随行婴儿使用的折叠婴儿车，可免费携带并不计入上述范围。</p>
+            <p>2. 旅客携带品应当遵守国家禁止或者限制运输的相关规定。为保障车站、旅客列车等公共场所内外整洁、空气清新，妨碍公共卫生的物品，能够损坏或污染车辆的物品，以及活动物（导盲犬和作为食品且经封闭箱体包装的鱼、虾、蟹、贝、软体类水产动物除外）不得随身携带乘车。</p>
+            <p>3. 旅客违规携带物品按下列规定处理：(1)在乘车站禁止进站上车。(2)在车内或下车站，对超过免费重量的物品，其超重部分应自上车站至下车站补收行李运费。对不可分拆的整件超重、超大物品、活动物，按该件全部重量补收上车站至下车站行李运费。列车不具备补收条件时可交前方停车站处理。(3)发现危险品或禁限物品，妨碍公共卫生的物品，损坏或污染车辆的物品时，列车交前方停车站处理，车站按该件物品全部重量加倍补收上车站至下车站行李运费；涉嫌违法犯罪的送交公安部门处理，对有必要就地销毁的危险品或禁限物品应按有关规定处理。(4)如旅客携带超重、超大的物品价值低于行李运费时，可按物品价值的50％核收行李运费。(5)补收行李运费时，不得超过本次列车的始发站和终到站。不能判明上车站时，自始发站起计算。</p>
+        </div>
+        <div class="search-hint">
+            <p><em>温馨提示：本工具查询结果仅供参考，最终请以现场安检判定为准。</em></p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>提示：本工具提供的信息仅供参考，实际携带规定以现场安全检查为准</p>
+        <p>数据来源：铁路旅客运输规程及相关规定</p>
+    </div>
 
     <script>
-        // 选项卡切换
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // 移除所有选项卡的active类
-                document.querySelectorAll('.tab').forEach(t => {
-                    t.classList.remove('active');
+        // 携带品数据 - 从Excel表格中提取
+        const itemRegulations = {
+            "食用油": "包装完好的食用油可以携带。没有标识的自家榨的散装花生油、胡麻油、菜籽油、香油等，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "山茶油": "包装完好的山茶油可以携带。没有标识的自家榨的散装山茶油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "花生油": "包装完好的花生油可以携带。没有标识自家榨的散装花生油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "菜籽油": "包装完好的菜籽油可以携带。没有标识自家榨的散装菜籽油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "豆油": "包装完好的豆油可以携带。没有标识自家榨的散装豆油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "香油": "包装完好的香油可以携带。没有标识自家榨的散装香油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "麻油": "包装完好的麻油可以携带。没有标识自家榨的散装麻油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "橄榄油": "包装完好的橄榄油可以携带。",
+            "核桃油": "包装完好的核桃油可以携带。",
+            "胡麻油": "包装完好的胡麻油可以携带。没有标识自家榨的散装胡麻油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "色拉油": "包装完好的色拉油可以携带。",
+            "猪油": "包装完好的猪油可以携带。没有标识的自家熬的猪油，经现场安全检查仪确认无危险性，且密封包装不溢洒也可以随身携带。",
+            "荤油": "自家熬的荤油，经现场安全检查仪确认无危险性，且密封包装不溢洒可以随身携带。",
+            "饮料": "不含酒精的普通饮料可以随身携带。",
+            "牛奶": "牛奶可以随身携带。",
+            "母乳": "包装完好不撒漏的母乳可以随身携带。",
+            "矿泉水": "矿泉水可以随身携带。",
+            "酸奶": "酸奶可以随身携带。",
+            "咖啡": "咖啡可以随身携带。",
+            "榴莲": "榴莲等带有特殊气味的食品，需要确认包装完好且不会产生刺激性气味，方可以随身携带，但不能在铁路站车公共场所食用。",
+            "臭豆腐": "臭豆腐等带有特殊气味的食品，需要确认包装完好且不会产生刺激性气味，方可以随身携带，但不能在铁路站车公共场所食用。",
+            "螺蛳粉": "螺蛳粉等带有特殊气味的食品，需要确认包装完好且不会产生刺激性气味，方可以随身携带，但不能在铁路站车公共场所食用。",
+            "自热食品": "自热食品发热包包含镁铝粉的，属于易燃易爆成分，禁止随身携带和托运。不含镁铝粉的可以携带。请您仔细核对成分表。",
+            "自热火锅": "自热火锅发热包包含镁铝粉的，属于易燃易爆成分，禁止随身携带和托运。不含镁铝粉的可以携带。请您仔细核对成分表。",
+            "自热米饭": "自热米饭发热包包含镁铝粉的，属于易燃易爆成分，禁止随身携带和托运。不含镁铝粉的可以携带。请您仔细核对成分表。",
+            "海鲜": "鱼、虾、螃蟹、贝壳、及软体类水产动物，作为食品时，用封闭箱体包装后，可以随身携带。",
+            "虾": "虾作为食品时，用封闭箱体包装后，可以随身携带。",
+            "皮皮虾": "皮皮虾作为食品时，用封闭箱体包装后，可以随身携带。",
+            "鱼": "鱼作为食品时，用封闭箱体包装后，可以随身携带。",
+            "螃蟹": "螃蟹作为食品时，用封闭箱体包装后，可以随身携带。",
+            "冷冻鱼": "冷冻鱼作为食品时，用封闭箱体包装后，可以随身携带。",
+            "生蚝": "生蚝作为食品时，用封闭箱体包装后，可以随身携带。",
+            "鲜鱼": "鲜鱼作为食品时，用封闭箱体包装后，可以随身携带。",
+            "扇贝": "扇贝作为食品时，用封闭箱体包装后，可以随身携带。",
+            "蛤蜊": "蛤蜊作为食品时，用封闭箱体包装后，可以随身携带。",
+            "海螺": "海螺作为食品时，用封闭箱体包装后，可以随身携带。",
+            "河鲜": "河鲜作为食品时，用封闭箱体包装后，可以随身携带。",
+            "海蜇": "海蜇作为食品时，用封闭箱体包装后，可以随身携带。",
+            "紫菜": "紫菜作为食品，用封闭箱体包装后，可以随身携带。",
+            "海带": "海带作为食品，用封闭箱体包装后，可以随身携带",
+            "鱿鱼": "鱿鱼作为食品时，用封闭箱体包装后，可以随身携带",
+            "海参": "海参作为食品时，用封闭箱体包装后，可以随身携带",
+            "墨鱼": "墨鱼作为食品时，用封闭箱体包装后，可以随身携带",
+            "章鱼": "章鱼作为食品时，用封闭箱体包装后，可以随身携带",
+            "食用贝壳类": "贝壳类食品用封闭箱体包装后，可以随身携带。",
+            "猪肉": "包装完好的猪肉可以携带。",
+            "鸡肉": "包装完好的鸡肉可以携带。",
+            "牛肉": "包装完好的牛肉可以携带。",
+            "羊肉": "包装完好的羊肉可以携带。",
+            "鹅肉": "包装完好的鹅肉可以携带。",
+            "鸭肉": "包装完好的鸭肉可以携带。",
+            "驴肉": "包装完好的驴肉可以携带。",
+            "冻肉": "包装完好的冻肉可以携带。",
+            "生鲜": "包装完好的生鲜肉类可以携带。",
+            "肉类": "肉类可以携带。宰杀后的鸡鸭、包装好的生鲜肉类，以及各类熟食制品，可以随身携带。",
+            "肉": "肉可以携带。宰杀后的鸡鸭、包装好的生鲜肉类，以及各类熟食制品，可以随身携带。",
+            "咸鱼": "包装完好的咸鱼可以随身携带。",
+            "咸肉": "包装完好的咸肉可以随身携带。",
+            "毛肚": "包装完好的毛肚可以随身携带。",
+            "生肉": "包装完好的生肉可以随身携带。",
+            "鸡蛋": "鸡蛋以及各类熟食蛋类，可以随身携带。",
+            "鸭蛋": "鸭蛋以及各类熟食蛋类，可以随身携带。",
+            "鹅蛋": "鹅蛋以及各类熟食蛋类，可以随身携带。",
+            "松花蛋": "松花蛋以及各类熟食蛋类，可以随身携带",
+            "鹌鹑蛋": "鹌鹑蛋以及各类熟食蛋类，可以随身携带。",
+            "虾仁": "虾仁作为食品可以随身携带。",
+            "食醋": "食醋可以携带。没有标识的自制陈醋，经现场安全检查仪确认无危险性且密封包装不溢洒的，也可以随身携带。",
+            "酱油": "酱油可以携带。没有标识的自制酱油，经现场安全检查仪确认无危险性且密封包装不溢洒的，也可以随身携带。",
+            "料酒": "料酒可以携带。",
+            "耗油": "耗油可以携带。",
+            "辣椒油": "包装完好的辣椒油可以携带。没有标识的自制辣椒油、辣椒酱，经现场安全检查仪确认无危险性并且密封包装不溢洒的，也可以随身携带。",
+            "农副产品": "经判明属于食用油的产品、宰杀后的鸡鸭、包装好的生鲜肉类以及各类熟食制品，可以随身携带。",
+            "家禽": "家禽可以携带，需要保证包装完好，不污染站车环境。",
+            "蝉蛹": "蝉蛹可以携带，需要保证包装完好，不污染站车环境。",
+            "冷冻的食品": "冷冻的食品可以携带，需要保证包装完好，不污染站车环境。",
+            "肘子": "肘子可以携带。包装好的各类熟食制品，都可以随身携带。",
+            "猪蹄": "猪蹄可以携带。包装好的各类熟食制品，都可以随身携带。",
+            "冷冻食品": "冷冻的食品可以携带，需要保证包装完好，不污染站车环境。",
+            "扒鸡": "扒鸡可以携带。包装好的各类熟食制品，都可以随身携带。",
+            "熟食": "包装好的各类熟食制品，都可以随身携带。",
+            "猪肚": "猪肚可以携带。包装好的各类熟食制品，都可以随身携带。",
+            "腊肉": "腊肉可以携带。包装好的各类熟食制品，都可以随身携带。",
+            "香肠": "香肠可以携带。包装好的各类熟食制品，都可以随身携带。",
+            "蜂蜜": "蜂蜜包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "水果": "水果可以携带。",
+            "蔬菜": "蔬菜可以携带。",
+            "冷面": "冷面包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "大酱": "大酱包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "辣酱": "辣酱包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "卤子": "卤子包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "卤水": "卤水包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "椰子": "椰子可以携带。",
+            "知了": "知了可以随身携带。",
+            "蚕蛹": "蚕蛹可以随身携带。",
+            "豆腐乳": "豆腐乳包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "罐头": "食用罐头可以随身携带。",
+            "生姜": "生姜可以携带。",
+            "大蒜": "大蒜可以携带。",
+            "辣椒": "辣椒可以携带。",
+            "零食": "零食可以随身携带。",
+            "胡辣汤": "胡辣汤包装完好，不会发生撒漏的情况下，可以随身携带。",
+            "猪脚冻": "猪脚冻可以随身携带。",
+            "猪皮冻": "猪皮冻可以随身携带。",
+            "豆汁": "包装完好且不产生刺激性气味的豆汁，可以随身携带，但不能在铁路站车公共场所食用。",
+            "奶茶": "奶茶可以随身携带",
+            "三七粉": "三七粉可以随身携带。",
+            "饺子": "饺子可以携带。",
+            "面包": "面包可以随身携带。",
+            "巧克力": "巧克力可以随身携带。",
+            "饼干": "饼干可以随身携带。",
+            "果酱": "包装完好的果酱可以携带。",
+            "芝麻酱": "包装完好的芝麻酱可以携带。",
+            "奶酪": "奶酪可以随身携带。",
+            "豆制品": "豆制品可以随身携带。",
+            "阿胶": "阿胶可以随身携带。",
+            "燕窝": "燕窝可以随身携带。",
+            "方便面": "方便面可以携带。",
+            "粉汤面": "粉汤面可以携带。",
+            "酸辣粉": "酸辣粉可以携带。",
+            "奶粉": "奶粉可以携带。",
+            "甘蔗": "甘蔗可以携带。",
+            "钙片": "钙片可以携带。",
+            "蛋白粉": "蛋白粉可以携带。",
+            "火锅底料": "火锅底料可以携带。",
+            "茶叶": "茶叶可以携带。",
+            "奶制品": "奶制品可以携带。",
+            "糖": "糖可以携带。",
+            "油茶": "油茶可以携带。",
+            "米粥": "米粥可以携带。",
+            "蛋糕": "蛋糕可以携带。",
+            "大米": "大米可以携带。",
+            "面粉": "面粉可以携带。",
+            "牛蛙": "活的牛蛙禁止携带，宰杀后的牛蛙封闭包装的可以携带。",
+            "甲鱼": "活的甲鱼禁止携带，宰杀后的甲鱼封闭包装的可以携带。",
+            "乌龟": "宠物乌龟禁止携带。",
+            "青蛙": "宠物青蛙禁止携带。",
+            "坚果": "坚果可以携带",
+            "白酒": "白酒可以携带，但需要注意白酒包装需要密封完好，包装上要有清晰标志，且酒精度数不能超过70度。每人随身携带白酒的容量不能超过3000毫升。",
+            "啤酒": "啤酒可以携带，但需要注意啤酒包装需要密封完好，包装上要有清晰标志。",
+            "红酒": "红酒可以携带，但需要注意红酒包装需要密封完好，包装上要有清晰标志。",
+            "黄酒": "黄酒可以携带，但需要注意黄酒包装需要密封完好，包装上要有清晰标志。",
+            "米酒": "米酒可以携带，但需要注意米酒包装需要密封完好，包装上要有清晰标志。",
+            "散酒": "散酒禁止随身携带。携带酒时需要有清晰标志的外包装，标志上要注明酒精度数、容量、生产厂家等，无标签的散装酒不能携带。",
+            "西瓜": "西瓜可以随身携带。",
+            "咸菜": "咸菜可以携带。",
+            "角磨机": "角磨机内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "砂轮机": "砂轮机内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "抛光机": "抛光机内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "切割机": "切割机内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "电动扳手": "不能换钻头的电动扳手内置锂电池额定能量不超过100瓦时的，可以随身携带。可以换钻头当成电钻使用的电动扳手不能携带。",
+            "电动螺丝刀": "电动螺丝刀内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "水平仪": "水平仪内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "万用表": "万用表内置锂电池额定能量不超过100瓦时的，可以随身携带。电池额定能量超过100瓦时的不能携带。",
+            "螺丝刀": "螺丝刀等非尖齿状日用工具，可以随身携带。",
+            "改锥": "改锥等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "扳手": "扳手等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "瓦刀": "非尖齿状的瓦刀等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。尖齿状瓦刀禁止携带。",
+            "钻头": "钻头等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "钳子": "钳子等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "网线钳": "网线钳等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "止血钳": "止血钳等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "垃圾钳": "垃圾钳等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "斜口钳": "斜口钳等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "钉子": "钉子等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "老虎钳": "老虎钳等常用工具包装完好，可以携带，但不能在铁路站车公共场所展示或使用。",
+            "乳胶漆": "装修用的乳胶漆原包装标志清晰、无撒漏，可以随身携带。",
+            "玻璃胶": "装修用的玻璃胶原包装标志清晰、无撒漏，可以随身携带。",
+            "密封胶": "装修用的密封胶原包装标志清晰、无撒漏，可以随身携带。",
+            "免钉胶": "装修用的免钉胶原包装标志清晰、无撒漏，可以随身携带。",
+            "堵漏王": "装修用的堵漏王原包装标志清晰、无撒漏，可以随身携带。",
+            "胶水": "日常办公用的胶水、固体胶包装完好，可以随身携带。",
+            "固体胶": "日常办公用的胶水、固体胶包装完好，可以随身携带。",
+            "万能胶": "万能胶包装完好不撒漏，可以随身携带。",
+            "502胶水": "502胶水包装完好不撒漏，可以随身携带。",
+            "甲油胶": "甲油胶包装完好不撒漏，可以随身携带。",
+            "水泥": "装修用的水泥原包装标志清晰、无撒漏，可以随身携带",
+            "机油": "汽车发动机机油需要保证包装完好，经现场安全检查仪确认无危险性且密封包装不溢洒，可以随身携带。",
+            "润滑油": "润滑油携带时需要保证包装完好，经现场安全检查仪确认无危险性且密封包装不溢洒，可以随身携带。",
+            "高尔夫球杆": "符合长度要求的高尔夫球杆可以随身携带，如您携带的是可伸缩杆，需要提前使用胶带缠绕，不能在铁路站车公共场所使用。",
+            "鱼杆": "符合长度要求的鱼竿可以随身携带，如您携带的是可伸缩杆，需要提前使用胶带缠绕，不能在铁路站车公共场所使用",
+            "未开刃的刀剑": "健身或武术表演使用的未开刃的刀剑可以携带。请您将物品包装完好，妥善放置，不在铁路公共区域展示和使用。",
+            "工艺品刀剑": "未开刃的工艺品刀剑可以携带。请您将物品包装完好，妥善放置，不在铁路公共区域展示和使用。",
+            "电动推子": "电动推子可以随身携带。",
+            "剃头推子": "剃头推子可以随身携带。",
+            "冰刀鞋": "请您将冰刀鞋鞋套戴好，可以随身携带",
+            "木质刀剑": "木质刀剑长度符合要求可以随身携带。",
+            "理发剪": "理发剪刀刃长度不超过60毫米的，可以随身携带。刀刃长度超过60毫米的不能携带。",
+            "美发剪": "美发剪刀刃长度不超过60毫米的，可以随身携带。刀刃长度超过60毫米的不能携带。",
+            "餐刀": "餐刀不可随身携带。",
+            "修眉刀": "修眉刀可以随身携带。",
+            "菜刀": "菜刀不可随身携带。",
+            "水果刀": "水果刀不可随身携带。",
+            "剪刀": "剪刀不可随身携带。",
+            "美工刀": "美工刀不可随身携带。",
+            "雕刻刀": "雕刻刀不可随身携带。",
+            "裁纸刀": "裁纸刀不可随身携带。",
+            "手术刀": "手术刀不可随身携带。",
+            "刨刀": "刨刀不可随身携带。",
+            "铣刀": "铣刀不可随身携带。",
+            "刀": "管制刀具禁止携带。",
+            "壁纸刀": "壁纸刀不可随身携带。",
+            "矛": "矛不可随身携带。",
+            "戟": "戟不可随身携带。",
+            "棍棒": "棍棒不可随身携带。",
+            "棍子": "棍子不可随身携带。",
+            "棒子": "棒子不可随身携带。",
+            "球棒": "球棒不可随身携带。",
+            "桌球杆": "桌球杆不可随身携带。",
+            "曲棍球杆": "曲棍球杆不可随身携带。",
+            "台球杆": "台球杆不可随身携带。",
+            "钻机": "钻机不可随身携带。",
+            "电钻": "电钻不可随身携带。",
+            "手钻": "手钻不可随身携带。",
+            "风钻": "风钻不可随身携带。",
+            "冲击枪": "冲击钻不可随身携带。",
+            "手枪钻": "手枪钻不可随身携带。",
+            "电锤": "电锤不可随身携带。",
+            "冲击锤": "冲击锤不可随身携带。",
+            "钻孔机": "钻孔机不可随身携带。",
+            "手电钻": "手电钻不可随身携带。",
+            "凿": "凿等农具工具，不可随身携带。",
+            "锥": "锥等农具工具，不可随身携带。",
+            "锯": "锯等农具工具，不可随身携带。",
+            "斧头": "斧头等农具工具，不可随身携带。",
+            "榔头": "榔头等农具工具，不可随身携带。",
+            "铁锤": "铁锤等农具工具，不可随身携带。",
+            "焊枪": "焊枪等农具工具，不可随身携带。",
+            "射钉枪": "射钉枪等农具工具，不可随身携带。",
+            "锤": "锤等农具工具，不可随身携带。",
+            "耙": "耙等农具工具，不可随身携带。",
+            "铁锹": "铁锹等农具工具，不可随身携带。",
+            "镢头": "镢头等农具工具，不可随身携带。",
+            "锄头": "锄头等农具工具，不可随身携带。",
+            "农用叉": "农用叉等农具工具，不可随身携带。",
+            "镰刀": "镰刀等农具工具，不可随身携带。",
+            "铡刀": "铡刀等农具工具，不可随身携带。",
+            "冰镐": "冰镐等农具工具，不可随身携带。",
+            "反曲弓": "反曲弓不可随身携带。",
+            "复合弓": "复合弓不可随身携带。",
+            "消防灭火枪": "消防灭火枪不可随身携带。",
+            "匕首": "匕首不可随身携带。",
+            "军刀": "军刀不可随身携带。",
+            "管制刀具": "管制刀具不可随身携带。",
+            "刺刀": "刺刀不可随身携带。",
+            "佩刀": "佩刀不可随身携带。",
+            "三棱刮刀": "三棱刮刀不可随身携带。",
+            "猎刀": "猎刀不可随身携带。",
+            "弹簧折叠刀": "弹簧折叠刀不可随身携带。",
+            "砍骨刀": "砍骨刀不可随身携带。",
+            "西瓜刀": "西瓜刀不可随身携带。",
+            "剔骨刀": "剔骨刀不可随身携带。",
+            "屠宰刀": "屠宰刀不可随身携带。",
+            "多用刀": "多用刀不可随身携带。",
+            "开刃的武术刀具": "开刃的武术刀具不可随身携带。",
+            "开刃的工艺礼品刀具": "开刃的工艺礼品刀具不可随身携带。",
+            "军用匕首": "军用匕首不可随身携带。",
+            "警用匕首": "警用匕首不可随身携带。",
+            "警棍": "警棍等专用器具，不可随身携带。",
+            "催泪器": "催泪器不可随身携带。",
+            "电击器": "电击器不可随身携带。",
+            "防卫器": "防卫器不可随身携带。",
+            "弩": "弩不可随身携带。",
+            "弩箭": "弩箭不可随身携带。",
+            "灭火器": "灭火器不可随身携带。",
+            "干冰冷却剂": "干冰冷却剂不可随身携带。",
+            "赶海工具": "赶海工具，比如塑料铲子、小型铁锹、铲子等包装完好，可以随身携带，但工兵铲禁止携带。",
+            "种花工具": "种花工具中的小型铁锹、铲子包装完好，可以随身携带，但工兵铲禁止携带。",
+            "游标卡尺": "游标卡尺可以随身携带。",
+            "刀片": "经判明刀刃长度超过60毫米，不可随身携带，可以办理托运",
+            "削皮器": "削水果用的削皮器能否携带，需要由现场安检判定，一般情况下刀片是固定的且刀片长度不超过6厘米的可以携带，可拆卸刀片或刀片超过规定长度的不能携带。",
+            "医用镊子": "医用镊子可以随身携带。",
+            "保湿喷雾": "保湿喷雾属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "防晒喷雾": "防晒喷雾属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "摩丝": "摩丝属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "发胶": "发胶属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "杀虫剂": "杀虫剂属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "空气清新剂": "空气清新剂属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "雅漾": "雅漾属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "补水喷雾": "补水喷雾属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "自喷压力容器": "自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "剃须泡沫": "剃须泡沫属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "喷雾": "喷雾属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "压力罐": "压力罐属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "染发剂": "染发剂属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "云南白药": "云南白药属于自喷压力容器，携带时需注意瓶身上标注的容积不能超过一百五十毫升，每种自喷压力容器限带1件，累计不超过四种。",
+            "香水": "香水可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "凝胶": "凝胶可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "免洗洗手液": "免洗洗手液可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "花露水": "花露水可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "防蚊喷雾": "防蚊喷雾可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "驱蚊水": "驱蚊水可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "六神": "六神花露水可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "防蚊液": "防蚊液可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "宝宝金水": "宝宝金水可以携带1件，携带时需注意瓶身上标注的容积不超过一百毫升。",
+            "指甲油": "指甲油可以携带，但每名旅客携带的指甲油、去光剂累计不能超过50毫升。",
+            "去光剂": "去光剂可以携带，但每名旅客携带的指甲油、去光剂累计不能超过50毫升。",
+            "爽身粉": "爽身粉可以随身携带。",
+            "洗面奶": "洗面奶可以随身携带。",
+            "洗手液": "洗手液可以随身携带。",
+            "香皂": "香皂可以随身携带。",
+            "肥皂": "肥皂可以随身携带。",
+            "洗发水": "洗发水可以随身携带。",
+            "沐浴露": "沐浴露可以随身携带。",
+            "粉底液": "粉底液可以随身携带。",
+            "口红": "口红可以随身携带。",
+            "护发素": "护发素可以随身携带。",
+            "卸妆水": "不含易燃成分的卸妆水可以随身携带。",
+            "活络油": "不含易燃成分的活络油可以随身携带。",
+            "爽肤水": "爽肤水可以随身携带。",
+            "乳液": "乳液可以随身携带。",
+            "洗衣液": "洗衣液可以随身携带。",
+            "洗洁精": "洗洁精可以随身携带。",
+            "充电宝": "标志清晰的充电宝，单块额定能量不超过100瓦时可以随身携带，在不超过携带品重量的前提下没有数量限制。",
+            "锂电池": "标志清晰的锂电池，单块额定能量不超过100瓦时可以随身携带，在不超过携带品重量的前提下没有数量限制。",
+            "绞肉机": "家用电动绞肉机等带有刀片类电器包装完好，可以随身携带，但不可在铁路站车场所使用。",
+            "绞馅机": "绞馅机等带有刀片类电器包装完好，可以随身携带，但不可在铁路站车场所使用。",
+            "辅食机": "辅食机等带有刀片类电器包装完好，可以随身携带，但不可在铁路站车场所使用。",
+            "豆浆机": "豆浆机等带有刀片类电器包装完好，可以随身携带，但不可在铁路站车场所使用。",
+            "电磁炉": "电磁炉可以携带，但禁止在列车上使用。",
+            "制氧机": "制氧机可以携带，但禁止在列车上使用。",
+            "电烤炉": "电烤炉可以携带，但禁止在列车上使用。",
+            "电饼铛": "电饼铛可以携带，但禁止在列车上使用。",
+            "电暖气": "电暖气可以携带，但禁止在列车上使用。",
+            "电风扇": "电风扇可以携带，但禁止在列车上使用。",
+            "投影机": "投影机可以携带，但禁止在列车上使用。",
+            "染发膏": "非自喷压力容器包装，且不含易燃成分的染发膏可以携带。",
+            "锅": "日常烹饪用的锅具可以随身携带，但不可在铁路站车场所使用。",
+            "碗": "吃饭用的碗可以随身携带。",
+            "勺子": "勺子可以随身携带",
+            "叉子": "叉子可以随身携带",
+            "水瓢": "水瓢可以随身携带",
+            "盆": "日常生活使用的各类水盆可以随身携带。",
+            "筷子": "筷子可以随身携带",
+            "炒菜铲子": "炒菜铲子可以随身携带",
+            "漏斗": "漏斗可以随身携带",
+            "电饭锅": "电饭锅可以随身携带，但不可在铁路站车场所使用。",
+            "电饭煲": "电饭煲可以随身携带，但不可在铁路站车场所使用。",
+            "鱼钩": "鱼钩可以随身携带。",
+            "粉刺针": "粉刺针可以随身携带。",
+            "空气炸锅": "空气炸锅可以随身携带，但不可在铁路站车场所使用。",
+            "水壶": "水壶可以随身携带，但不可在铁路站车场所使用。",
+            "开瓶器": "开瓶器可以随身携带。",
+            "艾灸器具": "艾灸器具可以随身携带。",
+            "体温计": "体温计可以随身携带。",
+            "胶带": "胶带可以随身携带。",
+            "手电筒": "手电筒可以随身携带。",
+            "熨斗": "熨斗可以随身携带。",
+            "吹风机": "吹风机可以随身携带，但不可在铁路站车场所使用。",
+            "水龙头": "水龙头可以随身携带。",
+            "指甲刀": "指甲刀可以随身携带。",
+            "暖水袋": "暖水袋可以随身携带。",
+            "酒精": "外包装明确标有医用标志，且瓶身上容积不超过100毫升的酒精消毒液可以携带。超过100毫升或标有工业酒精用途的不能携带。",
+            "消毒湿巾": "酒精消毒湿巾、棉片密封包装好可以携带。",
+            "滴露消毒液": "滴露消毒液包装完好可以随身携带。",
+            "电子烟": "电子烟及适量烟油可以随身携带。",
+            "蜡烛": "蜡烛可以随身携带。",
+            "佛香": "佛香可以随身携带。",
+            "香烟": "香烟可以随身携带，每名旅客最多可携带50条香烟。",
+            "暖贴": "暖贴需要查看成分，成分不含镁铝粉的暖贴可以携带乘车。",
+            "防身喷剂": "防身喷剂不能携带。",
+            "灭鼠药": "灭鼠药不能携带。",
+            "除草剂": "除草剂等剧毒农药不能携带。",
+            "工兵铲": "工兵铲不能携带。",
+            "固体酒精": "固体酒精属于易燃物品，不能携带。",
+            "打气筒": "手动打气筒可以随身携带。",
+            "电动充气泵": "电动充气泵，内置锂电池额定能量不超过100瓦时的，可以随身携带。",
+            "打火机": "普通打火机可以随身携带，但数量不能超过两个。",
+            "zippo打火机": "zippo等煤油类打火机外壳可以携带，但机芯不能携带，建议您携带普通打火机。",
+            "剃须刀": "电动剃须刀，可以随身携带。手动剃须刀刀刃长度不超过6厘米的可以携带。",
+            "弹弓": "弹弓禁止随身携带。",
+            "燃气灶": "燃气灶可以携带，但不可在铁路站车场所使用。",
+            "烧烤炉": "烧烤炉可以携带，但不可在铁路站车场所使用。",
+            "电烤箱": "电烤箱可以携带，但不可在铁路站车场所使用。",
+            "微波炉": "微波炉可以携带，但不可在铁路站车场所使用。",
+            "冰箱": "冰箱符合尺寸规定的可以携带，但不可在铁路站车场所使用。",
+            "音响": "音响可以携带，但不可在铁路站车场所使用。",
+            "打印机": "打印机可以携带，但不可在铁路站车场所使用。",
+            "灯泡": "灯泡可以携带。",
+            "热得快": "热得快可以携带，但不可在铁路站车场所使用。",
+            "热水器": "热水器符合尺寸规定的可以携带，但不可在铁路站车场所使用。",
+            "手机壳": "手机壳可以携带。",
+            "三角阀": "三角阀符合尺寸规定的可以携带。",
+            "针灸针": "针灸针可以携带。",
+            "插线板": "插线板可以携带，但不可在铁路站车场所使用。",
+            "制冰机": "制冰机符合尺寸规定的可以携带，但不可在铁路站车场所使用。",
+            "电子秤": "电子秤可以随身携带，但如带有内置锂电池的，电池额定能量不超过100瓦。",
+            "电动按摩仪": "电动按摩仪可以随身携带，但如带有内置锂电池的，电池额定能量不超过100瓦。",
+            "养生壶": "养生壶可以携带，但不可在铁路站车场所使用。",
+            "卷发棒": "卷发棒可以携带，但不可在铁路站车场所使用。",
+            "电线": "电线可以携带。",
+            "碘伏": "碘伏可以随身携带。",
+            "麻将": "麻将可以随身携带。",
+            "吸尘器": "吸尘器符合尺寸规定的可以携带，但不可在铁路站车场所使用。",
+            "家用洗车机": "家用洗车机符合尺寸规定的可以携带，但不可在铁路站车场所使用。",
+            "无人机": "无人机，内置锂电池额定能量不超过100瓦时，可以随身携带，但不得在铁路站车公共场所使用。",
+            "电动滑板车": "电动滑板车，内置锂电池额定能量不超过100瓦时，包装完好可以随身携带。",
+            "电子元件": "电子元件可以随身携带",
+            "输液针": "输液针可以随身携带。",
+            "注射针头": "注射针头可以随身携带。",
+            "注射器": "注射器可以随身携带。",
+            "氧气袋": "袋装医用氧气可适量携带，但旅客需持就医证明。氧气瓶属于易燃易爆物品，不能携带。",
+            "氧气瓶": "氧气瓶禁止携带。",
+            "自行车": "打包好的折叠自行车、公路自行车、平衡车使用硬质包装完整可以携带上车，但不得在铁路站车上使用。",
+            "尸骨": "尸骨禁止携带。",
+            "骨灰盒": "骨灰盒只要做到隐蔽包装，即可携带，途中请您妥善保管。",
+            "药品": "不属于违禁药品的自用药品都可以携带。比如胶囊、药片、冲剂或液体中药均可携带。",
+            "中药": "中药包装完好、密封不会撒漏的都可以携带。",
+            "轮椅": "轮椅可以携带。依靠辅助器具才能行动的老、幼、病、残、孕等特殊重点旅客旅行时代步的折叠式轮椅、电动轮椅，可免费携带。",
+            "婴儿车": "婴儿车可以携带。随行婴儿使用的折叠婴儿车，可免费携带。",
+            "现金": "现金可以随身携带，请您妥善保管。",
+            "装饰品海螺": "海螺饰品包装完好，可以随身携带。",
+            "乐器": "乐器包装完好，符合携带品尺寸和重量要求，可以随身携带。",
+            "电动三轮车": "电动三轮车属于交通工具，禁止携带。",
+            "弹壳": "实弹击发后的弹壳，以及用其制作的工艺品、纪念品均禁止随身携带。",
+            "液氮": "液氮禁止随身携带。",
+            "高尔夫球包": "高尔夫球包，重量和尺寸符合携带品规定，可以随身携带。",
+            "扬琴": "扬琴，重量和尺寸符合携带品规定，可以随身携带。",
+            "祭祀用品": "祭祀用品可以随身携带。",
+            "球拍": "球拍，重量和尺寸符合携带品规定，可以随身携带。",
+            "血压计": "血压计可以随身携带。",
+            "电动车": "电动车禁止携带。",
+            "油纸伞": "制作油纸伞的油纸属于易燃物品，不能随身携带。",
+            "婴儿床": "婴儿床，重量和尺寸符合携带品规定，可以随身携带。",
+            "充电器": "充电器可以随身携带。",
+            "电子琴": "电子琴，重量和尺寸符合携带品规定，可以随身携带。",
+            "丙烯颜料": "包装完好且外包转注明无易燃成分的丙烯颜料可以携带。",
+            "树苗": "携带树苗时，重量和尺寸符合携带品规定，可以随身携带。",
+            "盆栽": "盆栽包装完好，重量和尺寸符合携带品规定，可以随身携带。",
+            "鲜花": "鲜花包装完好，重量和尺寸符合携带品规定，可以随身携带。",
+            "汽油": "汽油属于易燃液体，禁止携带。",
+            "双氧水": "双氧水属于有机过氧化物，禁止携带。",
+            "电动平衡车": "电动平衡车，内置锂电池额定能量不超过100瓦时，使用硬质包装完整可以携带上车，在车站和列车上禁止打开包装使用。",
+            "自喷漆": "自喷漆禁止携带。",
+            "滑板": "打包好的无动力滑板，使用硬质包装完整可以携带上车，在车站和列车上禁止打开包装使用。",
+            "花盆": "花盆包装完好，重量和尺寸符合携带品规定，可以随身携带。",
+            "台球杆盒": "台球杆盒包装完好，重量和尺寸符合携带品规定，可以随身携带。",
+            "高锰酸钾": "高锰酸钾禁止携带。",
+            "宠物": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小动物": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "动物": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "狗": "除视力障碍携带的导盲犬外，任何体型的宠物狗都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "猫": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "兔": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鼠": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鸡": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鸭": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "观赏鱼": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鹅": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鸟": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "乌龟": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "金鱼": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "仓鼠": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "兔子": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小猫": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小狗": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小乌龟": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "巴西龟": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "老鼠": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "蜥蜴": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "蛇": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "黄鳝": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鹦鹉": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "八哥": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "活物": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "鸽子": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小型犬": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "大型犬": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "宠物狗": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "活鸡": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "活鸭": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小兔子": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "猫咪": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小猫咪": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "宠物螃蟹": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "寄居蟹": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "手上鹦鹉": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "斗鱼": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小金鱼": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "宠物猫": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "热带鱼": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "蚕宝宝": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。",
+            "小鸭子": "除视力障碍携带的导盲犬外，任何活体动物，不论体型大小都不能带进车站。如您需要办理宠物托运，请您拨打95572咨询。"
+        };
+
+        // 常用品类示例
+        const sampleCategories = [
+            "白酒", "充电宝", "水果刀", "宠物", "自热食品", "喷雾", 
+            "打火机", "香烟", "菜刀", "剪刀", "锂电池", "酒精",
+            "海鲜", "肉类", "鸡蛋", "水果", "蔬菜", "饮料"
+        ];
+
+        // DOM元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const resultContent = document.getElementById('resultContent');
+        const resultCount = document.getElementById('resultCount');
+        const categorySamples = document.getElementById('categorySamples');
+
+        // 初始化示例标签
+        function initSampleTags() {
+            categorySamples.innerHTML = '';
+            sampleCategories.forEach(category => {
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.textContent = category;
+                tag.addEventListener('click', () => {
+                    searchInput.value = category;
+                    searchRegulations();
                 });
-                
-                // 添加当前选项卡的active类
-                this.classList.add('active');
-                
-                // 隐藏所有内容
-                document.getElementById('refund-content').style.display = 'none';
-                document.getElementById('change-content').style.display = 'none';
-                
-                // 显示对应内容
-                const tabType = this.getAttribute('data-tab');
-                if (tabType === 'refund') {
-                    document.getElementById('refund-content').style.display = 'block';
-                } else {
-                    document.getElementById('change-content').style.display = 'block';
-                }
-                
-                // 隐藏结果区域
-                document.getElementById('refund-result').classList.remove('show');
-                document.getElementById('change-result').classList.remove('show');
+                categorySamples.appendChild(tag);
             });
-        });
-        
-        // 尾数处理函数
-        function processFee(fee) {
-            // 转换为角
-            let feeInJiao = Math.round(fee * 10);
-            
-            // 计算余数
-            let remainder = feeInJiao % 5;
-            
-            // 根据余数调整
-            if (remainder < 2.5) {
-                feeInJiao = feeInJiao - remainder;
-            } else if (remainder < 7.5) {
-                feeInJiao = feeInJiao - remainder + 5;
-            } else {
-                feeInJiao = feeInJiao - remainder + 10;
-            }
-            
-            // 转换回元，保留1位小数
-            return feeInJiao / 10;
         }
-        
-        // 获取退票费率（根据改签时间选项）
-        function getRefundRateForChange(changeOption) {
-            switch(changeOption) {
-                case 'free1': // 开车前8天(含)以上改签
-                    return 0;
-                case 'free2': // 开车前48小时至8天改签
-                    return 0.05;
-                case 'free3': // 开车前48小时以上改签
-                    return 0.05;
-                case 'free4': // 开车前不足48小时改签至原乘车日期及以前
-                    return 0.1;
-                case 'free5': // 开车后当日24时前改签当日其他列车
-                    return 0.2;
-                case '5p': // 开车前24-48小时改签至原乘车日期之后
-                    return 0.1;
-                case '15p': // 开车前不足24小时改签至原乘车日期之后
-                    return 0.2;
-                case '40p': // 开车后当日24时前改签次日及以后列车
-                    return 0.2;
-                default:
-                    return 0;
-            }
-        }
-        
-        // 计算退票费用
-        document.getElementById('calculate-refund').addEventListener('click', function() {
-            const price = parseFloat(document.getElementById('refund-ticket-price').value);
+
+        // 搜索规定
+        function searchRegulations() {
+            const query = searchInput.value.trim();
             
-            if (!price || price <= 0) {
-                alert('请输入有效的火车票票价');
+            if (!query) {
+                showEmptyState();
                 return;
             }
             
-            // 获取退票时间选项
-            const timeOption = document.querySelector('input[name="refund-time"]:checked').value;
-            const specialCase = document.querySelector('input[name="refund-special"]:checked').value;
+            const results = [];
             
-            let rate = 0;
-            let explanation = '';
+            // 精确匹配
+            if (itemRegulations[query]) {
+                results.push({
+                    category: query,
+                    regulation: itemRegulations[query],
+                    matchType: 'exact'
+                });
+            }
             
-            // 根据退票时间和特殊情况计算费率
-            if (specialCase === 'special-8d') {
-                // 特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票
-                // 根据时间选项确定费率
-                switch(timeOption) {
-                    case '8d':
-                        // 8天以上时不是免费，要收取5%
-                        rate = 0.05;
-                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票，按票价的${rate * 100}%计算。`;
-                        break;
-                    case '48h':
-                        rate = 0.05;
-                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票。由于距离开车时间在48小时以上，按票价的${rate * 100}%计算。`;
-                        break;
-                    case '24h':
-                        rate = 0.1;
-                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票。由于距离开车时间在24-48小时之间，按票价的${rate * 100}%计算。`;
-                        break;
-                    case '0h':
-                        rate = 0.2;
-                        explanation = `特殊情况：距开车不足8天改签至开车前8天以上，又在距开车前8天以上退票。由于距离开车时间不足24小时，按票价的${rate * 100}%计算。`;
-                        break;
-                }
-            } else {
-                // 正常情况
-                switch(timeOption) {
-                    case '8d':
-                        rate = 0;
-                        explanation = '开车前8天(含)以上退票，不收取退票费。';
-                        break;
-                    case '48h':
-                        rate = 0.05;
-                        explanation = `开车前48小时以上退票，按票价的${rate * 100}%计算。`;
-                        break;
-                    case '24h':
-                        rate = 0.1;
-                        explanation = `开车前24-48小时退票，按票价的${rate * 100}%计算。`;
-                        break;
-                    case '0h':
-                        rate = 0.2;
-                        explanation = `开车前不足24小时退票，按票价的${rate * 100}%计算。`;
-                        break;
+            // 模糊匹配
+            for (const category in itemRegulations) {
+                if (category.includes(query) && category !== query) {
+                    results.push({
+                        category: category,
+                        regulation: itemRegulations[category],
+                        matchType: 'partial'
+                    });
                 }
             }
             
-            // 计算费用
-            let fee = price * rate;
+            displayResults(query, results);
+        }
+
+        // 显示结果
+        function displayResults(query, results) {
+            if (results.length === 0) {
+                resultCount.textContent = `未找到"${query}"的相关规定`;
+                resultContent.innerHTML = `
+                    <div class="empty-state">
+                        <i>❓</i>
+                        <h3>未找到相关携带规定</h3>
+                        <p>没有找到"${query}"的携带规定，请尝试其他搜索词。</p>
+                        <div class="note">
+                            <p><strong>提示：</strong>您可以尝试搜索更具体的物品名称，或查看下面的常用物品标签。</p>
+                        </div>
+                        <div class="category-list" id="categorySamples"></div>
+                    </div>
+                `;
+                initSampleTags();
+                return;
+            }
             
-            // 尾数处理
-            fee = processFee(fee);
+            resultCount.textContent = `找到${results.length}条相关结果`;
             
-            // 退票费最低按2元计收。当计算出的退票费小于2元时，按2元收取；若车票价格本身低于2元，则按车票全价收取，即不退钱。
-            if (rate > 0) {
-                // 如果计算出的退票费小于2元
-                if (fee < 2) {
-                    // 如果车票价格低于2元，则按车票全价收取
-                    if (price < 2) {
-                        fee = price;
-                        explanation += ` 退票费最低按2元计收，但车票价格${price.toFixed(2)}元低于2元，故按车票全价收取退票费。`;
+            let html = '';
+            
+            // 精确匹配结果
+            const exactMatches = results.filter(r => r.matchType === 'exact');
+            if (exactMatches.length > 0) {
+                html += `<h3>精确匹配结果：</h3>`;
+                exactMatches.forEach(result => {
+                    html += createResultItem(result);
+                });
+            }
+            
+            // 模糊匹配结果
+            const partialMatches = results.filter(r => r.matchType === 'partial');
+            if (partialMatches.length > 0) {
+                html += `<h3 style="margin-top: 30px;">相关物品：</h3>`;
+                partialMatches.forEach(result => {
+                    html += createResultItem(result);
+                });
+            }
+            
+            
+            resultContent.innerHTML = html;
+        }
+
+        // 创建结果项
+        function createResultItem(result) {
+            // 高亮显示搜索关键词
+            let highlightedRegulation = result.regulation;
+            const searchQuery = searchInput.value.trim();
+            
+            if (searchQuery) {
+                const regex = new RegExp(`(${searchQuery})`, 'gi');
+                highlightedRegulation = highlightedRegulation.replace(regex, '<span class="highlight">$1</span>');
+            }
+            
+            // 判断是否需要警告
+            let warningHtml = '';
+            if (result.regulation.includes('禁止') || result.regulation.includes('不能携带') || result.regulation.includes('不可随身携带')) {
+                warningHtml = `<div class="warning"><strong>⚠ 注意：</strong>此物品有携带限制或禁止携带，请仔细阅读规定。</div>`;
+            } else if (result.regulation.includes('限量') || result.regulation.includes('不超过') || result.regulation.includes('限带')) {
+                warningHtml = `<div class="warning"><strong>⚠ 注意：</strong>此物品有数量或容量限制，请仔细阅读规定。</div>`;
+            }
+            
+            return `
+                <div class="result-item">
+                    <h3>${result.category}</h3>
+                    <p>${highlightedRegulation}</p>
+                    ${warningHtml}
+                </div>
+            `;
+        }
+
+        // 显示空状态
+        function showEmptyState() {
+            resultCount.textContent = '输入品类后显示结果';
+            resultContent.innerHTML = `
+                <div class="empty-state">
+                    <i>🔍</i>
+                    <h3>请输入要查询的品类</h3>
+                    <p>在搜索框中输入您想查询的物品名称，例如：白酒、充电宝、水果刀等</p>
+                    <div class="category-list" id="categorySamples"></div>
+                </div>
+            `;
+            initSampleTags();
+        }
+
+        // 搜索示例
+        function searchExample(category) {
+            searchInput.value = category;
+            searchRegulations();
+        }
+
+        // 初始化
+        function init() {
+            showEmptyState();
+            
+            // 事件监听
+            searchBtn.addEventListener('click', searchRegulations);
+            
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchRegulations();
+                }
+            });
+            
+            // 输入时实时搜索（防抖处理）
+            let debounceTimer;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    if (this.value.trim().length > 0) {
+                        searchRegulations();
                     } else {
-                        fee = 2;
-                        explanation += ` 退票费最低按2元计收，故实际收取2元退票费。`;
+                        showEmptyState();
                     }
-                }
-            }
-            
-            // 计算旅客最终收到的退款
-            let finalRefund = price - fee;
-            if (finalRefund < 0) finalRefund = 0;
-            
-            // 问题一：在退票页面显示旅客最终收到的退款
-            document.getElementById('original-price-display').textContent = price.toFixed(2) + ' 元';
-            document.getElementById('refund-fee-display').textContent = fee.toFixed(2) + ' 元';
-            document.getElementById('final-refund-display').textContent = finalRefund.toFixed(2) + ' 元';
-            document.getElementById('refund-summary').style.display = 'block';
-            
-            // 显示结果
-            document.getElementById('refund-fee').textContent = fee.toFixed(2) + ' 元';
-            document.getElementById('refund-explanation').textContent = explanation;
-            document.getElementById('refund-result').classList.add('show');
-        });
-        
-        // 计算改签费用
-        document.getElementById('calculate-change').addEventListener('click', function() {
-            const originalPrice = parseFloat(document.getElementById('change-original-price').value);
-            const newPrice = parseFloat(document.getElementById('change-new-price').value);
-            
-            if (!originalPrice || originalPrice <= 0) {
-                alert('请输入有效的原火车票票价');
-                return;
-            }
-            
-            if (!newPrice || newPrice < 0) {
-                alert('请输入有效的改签后火车票票价');
-                return;
-            }
-            
-            // 获取改签选项
-            const changeOption = document.querySelector('input[name="change-option"]:checked').value;
-            
-            // 计算改签费用
-            let changeRate = 0;
-            let changeFee = 0;
-            
-            // 根据改签选项计算改签费率
-            switch(changeOption) {
-                case 'free1':
-                    changeRate = 0;
-                    break;
-                case 'free2':
-                    changeRate = 0;
-                    break;
-                case 'free3':
-                    changeRate = 0;
-                    break;
-                case 'free4':
-                    changeRate = 0;
-                    break;
-                case 'free5':
-                    changeRate = 0;
-                    break;
-                case '5p':
-                    changeRate = 0.05;
-                    break;
-                case '15p':
-                    changeRate = 0.15;
-                    break;
-                case '40p':
-                    changeRate = 0.4;
-                    break;
-            }
-            
-            // 计算改签费用（按低票价计算）
-            const lowerPrice = Math.min(originalPrice, newPrice);
-            changeFee = lowerPrice * changeRate;
-            
-            // 尾数处理
-            changeFee = processFee(changeFee);
-            
-            // 清空之前的显示
-            document.getElementById('change-fee-detail').innerHTML = '';
-            document.getElementById('refund-fee-detail').innerHTML = '';
-            document.getElementById('payment-detail').innerHTML = '';
-            document.getElementById('final-refund-detail').innerHTML = '';
-            
-            // 初始化变量
-            let priceDiff = 0;
-            let refundRate = 0;
-            let refundFeeForDiff = 0;
-            let extraPayment = 0;
-            let finalRefund = 0;
-            let totalPayment = 0;
-            
-            // 构建结果显示字符串
-            let changeFeeHtml = '';
-            let refundFeeHtml = '';
-            let paymentHtml = '';
-            let finalRefundHtml = '';
-            
-            // 问题二：重新组织结果显示格式
-            // 1. 改签手续费手续X%,X元。
-            if (changeRate > 0) {
-                changeFeeHtml = `<div class="result-line">
-                    <span class="result-label">改签手续费手续${(changeRate * 100)}%，${changeFee.toFixed(2)}元。</span>
-                </div>`;
-            } else {
-                changeFeeHtml = `<div class="result-line">
-                    <span class="result-label">改签手续费手续0%，0.00元。</span>
-                </div>`;
-            }
-            
-            // 判断原票价与新票价的关系
-            if (originalPrice > newPrice) {
-                // 情况1：原票价高于新票价（高改低）
-                priceDiff = originalPrice - newPrice;
-                refundRate = getRefundRateForChange(changeOption);
-                
-                // 计算差额部分退票手续费
-                refundFeeForDiff = priceDiff * refundRate;
-                refundFeeForDiff = processFee(refundFeeForDiff);
-                
-                // 退票费最低按2元计收
-                if (refundRate > 0) {
-                    // 如果计算出的退票费小于2元
-                    if (refundFeeForDiff < 2) {
-                        // 如果差价低于2元，则按差价全价收取
-                        if (priceDiff < 2) {
-                            refundFeeForDiff = priceDiff;
-                        } else {
-                            refundFeeForDiff = 2;
-                        }
-                    }
-                }
-                
-                // 2. 退票费收取差额部分X%，X元（无此费用时此行不显示）
-                if (refundRate > 0 && refundFeeForDiff > 0) {
-                    refundFeeHtml = `<div class="result-line">
-                        <span class="result-label">退票费收取差额部分${(refundRate * 100)}%，${refundFeeForDiff.toFixed(2)}元。</span>
-                    </div>`;
-                }
-                
-                // 计算总手续费 = 改签费 + 差额退票费
-                let totalFee = changeFee + refundFeeForDiff;
-                
-                // 计算旅客实际收到的退款：高票价 - 低票价 - 总手续费
-                finalRefund = priceDiff - totalFee;
-                
-                // 如果总手续费 > 差价，旅客需要额外支付不足部分
-                if (totalFee > priceDiff) {
-                    extraPayment = totalFee - priceDiff;
-                    finalRefund = 0; // 差额不足以支付手续费，退款为0
-                    
-                    // 3. 旅客需要重新支付的金额（无此费用时此行不显示，显示此行时要写明需要支付的都是哪些费用）
-                    if (extraPayment > 0) {
-                        paymentHtml = `<div class="result-line highlight">
-                            <span class="result-label">旅客需要额外支付的金额：</span>
-                            <span class="result-value">${extraPayment.toFixed(2)}元（用于支付手续费超出票价差价的部分）</span>
-                        </div>`;
-                    }
-                } else if (finalRefund < 0) {
-                    // 确保退款不为负数
-                    finalRefund = 0;
-                }
-                
-                // 计算旅客总共需要支付金额
-                totalPayment = extraPayment;
-                
-            } else if (originalPrice < newPrice) {
-                // 情况2：原票价低于新票价（低改高）
-                // 旅客需要支付新票价全款+手续费，原票价全额返还
-                
-                // 3. 旅客需要重新支付的金额（无此费用时此行不显示，显示此行时要写明需要支付的都是哪些费用）
-                if (changeFee > 0) {
-                    paymentHtml = `<div class="result-line">
-                        <span class="result-label">旅客需要重新支付的金额：</span>
-                        <span class="result-value">${(newPrice + changeFee).toFixed(2)}元（包括新票价全款${newPrice.toFixed(2)}元和改签手续费${changeFee.toFixed(2)}元）</span>
-                    </div>`;
-                } else {
-                    paymentHtml = `<div class="result-line">
-                        <span class="result-label">旅客需要重新支付的金额：</span>
-                        <span class="result-value">${newPrice.toFixed(2)}元（新票价全款）</span>
-                    </div>`;
-                }
-                
-                totalPayment = newPrice + changeFee;
-                // 低改高时，旅客应该收到低票价全款
-                finalRefund = originalPrice;
-                
-            } else {
-                // 情况3：原票价等于新票价
-                if (changeFee > 0) {
-                    totalPayment = changeFee;
-                    
-                    // 3. 旅客需要重新支付的金额
-                    paymentHtml = `<div class="result-line">
-                        <span class="result-label">旅客需要重新支付的金额：</span>
-                        <span class="result-value">${changeFee.toFixed(2)}元（改签手续费）</span>
-                    </div>`;
-                } else {
-                    totalPayment = 0;
-                }
-                // 票价相等时，旅客最终实际收到的退款为原票价全款
-                finalRefund = originalPrice;
-            }
-            
-            // 4. 旅客最终实际收到的退款（退款为0时此行也要显示，显示为0元）
-            finalRefundHtml = `<div class="result-line">
-                <span class="result-label">旅客最终实际收到的退款：</span>
-                <span class="result-value">${finalRefund.toFixed(2)}元</span>
-            </div>`;
-            
-            // 显示结果
-            document.getElementById('change-fee-detail').innerHTML = changeFeeHtml;
-            
-            if (refundFeeHtml) {
-                document.getElementById('refund-fee-detail').innerHTML = refundFeeHtml;
-                document.getElementById('refund-fee-detail').style.display = 'block';
-            } else {
-                document.getElementById('refund-fee-detail').style.display = 'none';
-            }
-            
-            if (paymentHtml) {
-                document.getElementById('payment-detail').innerHTML = paymentHtml;
-                document.getElementById('payment-detail').style.display = 'block';
-            } else {
-                document.getElementById('payment-detail').style.display = 'none';
-            }
-            
-            document.getElementById('final-refund-detail').innerHTML = finalRefundHtml;
-            
-            // 显示结果区域
-            document.getElementById('change-fee-section').style.display = 'block';
-            document.getElementById('final-result-section').style.display = 'block';
-            document.getElementById('change-result').classList.add('show');
-        });
-        
-        // 重置退票表单
-        document.getElementById('reset-refund').addEventListener('click', function() {
-            document.getElementById('refund-ticket-price').value = '';
-            document.getElementById('refund-time-1').checked = true;
-            document.getElementById('refund-special-none').checked = true;
-            document.getElementById('refund-result').classList.remove('show');
-        });
-        
-        // 重置改签表单
-        document.getElementById('reset-change').addEventListener('click', function() {
-            document.getElementById('change-original-price').value = '';
-            document.getElementById('change-new-price').value = '';
-            document.getElementById('change-option-1').checked = true;
-            document.getElementById('change-result').classList.remove('show');
-        });
-        
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 默认显示退票计算部分
-            document.getElementById('refund-content').style.display = 'block';
-        });
+                }, 300);
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
